@@ -1,0 +1,5 @@
+.idea
+*.iml
+eclipse.bin/
+dist
+src/vino-core/node_modules

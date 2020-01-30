@@ -1,0 +1,10 @@
+#header {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+#header .button {
+    border-left: 0 !important;
+    border-right: 0 !important;
+}
+

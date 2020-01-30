@@ -1,0 +1,11 @@
+{
+    "type": "postgres",
+    "host": "db",
+    "port": 5432,
+    "username": "vino",
+    "password": "vino",
+    "database": "vino",
+    "schema": "vino",
+    "entities": ["./entities/**/*.js"],
+    "synchronize": false
+}

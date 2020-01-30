@@ -1,0 +1,80 @@
+schemas:
+
+    # Objects
+
+    RootGroup:
+        type: object
+        properties:
+            name:
+                type: string
+            displayName:
+                type: string
+            groups:
+                type: array
+                items:
+                    $ref: '#/schemas/SettingsGroup'
+            defaults:
+                $ref: '#/schemas/SettingsGroup'
+
+    SettingsGroup:
+        type: object
+        properties:
+            name:
+                type: string
+            displayName:
+                type: string
+            isDefault:
+                type: boolean
+            groups:
+                type: array
+                items:
+                    $ref: '#/schemas/SettingsGroup'
+                example:
+                    - name: string
+                    - displayName: string
+                    - isDefault: true
+                    - groups: []
+                    - scalars: []
+                    - scalarLists: []
+            scalars:
+                type: array
+                items:
+                    $ref: '#/schemas/Scalar'
+            scalarLists:
+                type: array
+                items:
+                    $ref: '#/schemas/ScalarList'
+
+    ScalarList:
+        type: object
+        properties:
+            name:
+                type: string
+            displayName:
+                type: string
+            isDefault:
+                type: boolean
+            entries:
+                type: array
+                items:
+                    $ref: '#/schemas/Scalar'
+
+    Scalar:
+        type: object
+        properties:
+            name:
+                type: string
+            displayName:
+                type: string
+            value:
+                type: string
+            required:
+                type: boolean
+            type:
+                type: string
+                enum:
+                    - string
+                    - number
+                    - bool
+            isDefault:
+                type: boolean

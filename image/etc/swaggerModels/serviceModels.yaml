@@ -1,0 +1,190 @@
+schemas:
+
+    # Objects
+
+    ServiceRegistration:
+        type: object
+        properties:
+            name:
+                type: string
+            description:
+                type: string
+            entryNodeId:
+                type: string
+
+    ServiceTemplate:
+        type: object
+        properties:
+            serviceName:
+                type: string
+            referenceId:
+                type: string
+            desiredVersion:
+                type: number
+            cugId:
+                type: string
+            settingsRoot:
+                type: string
+            notes:
+                type: string
+            settingsRootRequired:
+                type: boolean
+            customerName:
+                type: string
+            steps:
+                type: array
+                items:
+                    $ref: '#/schemas/Step'
+
+    ServiceActivation:
+        type: object
+        properties:
+            referenceId:
+                type: string
+            name:
+                type: string
+            description:
+                type: string
+            startTime:
+                type: number
+            customerName:
+                type: string
+            notes:
+                type: string
+            settingsRootGroup:
+                type: string
+            inputTemplate:
+                type: string
+            steps:
+                type: array
+                items:
+                    $ref: '#/schemas/StepWrapper'
+            status:
+                type: array
+                items:
+                    $ref: '#/schemas/Status'
+
+    Status:
+        type: object
+        properties:
+            status:
+                type: string
+            time:
+                type: number
+            message:
+                type: string
+            statusIndex:
+                type: number
+
+    Step:
+        type: object
+        properties:
+            name:
+                type: string
+            description:
+                type: string
+            nodeId:
+                type: string
+            iterationCount:
+                type: number
+            activatedTime:
+                type: number
+            inputParameters:
+                type: array
+                items:
+                    $ref: '#/schemas/Parameter'
+            outputParameters:
+                type: array
+                items:
+                    $ref: '#/schemas/Parameter'
+
+    StepWrapper:
+        type: object
+        properties:
+            nodeId:
+                type: string
+            steps:
+                type: array
+                items:
+                    $ref: '#/schemas/Step'
+
+    Parameter:
+        type: object
+        properties:
+            parameterName:
+                type: string
+            parameterKey:
+                type: string
+            parameterDescription:
+                type: string
+            parameterType:
+                type: string
+                enum:
+                    - string
+                    - number
+                    - boolean
+                    - json
+                    - encodedString
+                    - enumerated
+                    - stringList
+                    - numberList
+                    - booleanList
+            encrypt:
+                type: boolean
+            stringValue:
+                type: string
+            numberValue:
+                type: number
+            booleanValue:
+                type: boolean
+            jsonValue:
+                type: object
+            encodedStringValue:
+                type: string
+            enumeratedValue:
+                type: string
+            stringListValue:
+                type: array
+                items:
+                    type: string
+            numberListValue:
+                type: array
+                items:
+                    type: number
+            booleanListValue:
+                type: array
+                items:
+                    type: boolean
+            inputDetails:
+                $ref: '#/schemas/InputDetails'
+            outputDetails:
+                $ref: '#/schemas/OutputDetails'
+
+    InputDetails:
+        type: object
+        properties:
+            fromConstants:
+                type: boolean
+            constantsPath:
+                type: string
+            isOptional:
+                type: boolean
+            isFinal:
+                type: boolean
+            options:
+                type: array
+                items:
+                    type: string
+
+    OutputDetails:
+        type: object
+        properties:
+            type:
+                type: string
+                enum:
+                    - REGEX
+                    - XPATH
+                    - JSONPATH
+                    - CUSTOM
+            format:
+                type: string
