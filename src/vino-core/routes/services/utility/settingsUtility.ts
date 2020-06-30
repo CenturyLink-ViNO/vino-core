@@ -6,6 +6,60 @@ import { getRepository, DeleteResult } from 'typeorm';
 
 export class SettingsUtility
 {
+   public async protectEncryptedData(rootGroup: RootGroup): Promise<RootGroup>
+   {
+      if (rootGroup.defaults)
+      {
+         rootGroup.defaults = this.protectEncryptedDataRecursive(rootGroup.defaults);
+      }
+      if (rootGroup.groups && Array.isArray(rootGroup.groups))
+      {
+         for (let group of rootGroup.groups)
+         {
+            group = this.protectEncryptedDataRecursive(group);
+         }
+      }
+      return rootGroup;
+   }
+
+   public protectEncryptedDataRecursive(group: SettingsGroup): SettingsGroup
+   {
+      if (group.scalars && Array.isArray(group.scalars))
+      {
+         for (const scalar of group.scalars)
+         {
+            if (scalar.encrypt)
+            {
+               scalar.value = '*******';
+            }
+         }
+      }
+      if (group.scalarLists && Array.isArray(group.scalarLists))
+      {
+         for (const list of group.scalarLists)
+         {
+            if (list.entries && Array.isArray(list.entries))
+            {
+               for (const scalar of list.entries)
+               {
+                  if (scalar.encrypt)
+                  {
+                     scalar.value = '*******';
+                  }
+               }
+            }
+         }
+      }
+      if (group.groups && Array.isArray(group.groups))
+      {
+         for (let nestedGroup of group.groups)
+         {
+            nestedGroup = this.protectEncryptedDataRecursive(nestedGroup);
+         }
+      }
+      return group;
+   }
+
    public async expandRootGroups(settings: RootGroup[]): Promise<RootGroup[]>
    {
       const ret: RootGroup[] = [];

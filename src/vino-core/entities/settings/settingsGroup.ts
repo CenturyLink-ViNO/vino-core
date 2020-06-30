@@ -232,7 +232,8 @@ export class SettingsGroup
                      scalar.getValue(),
                      scalar.displayName,
                      scalar.required,
-                     scalar.type
+                     scalar.type,
+                     scalar.encrypt
                   );
                   toAdd.isDefault = true;
                   this.addScalar(toAdd);
@@ -728,7 +729,7 @@ export class SettingsGroup
          {
             if (group.scalars[indx].name === constantName)
             {
-               return group.scalars[indx].value;
+               return group.scalars[indx];
             }
          }
       }
@@ -738,7 +739,7 @@ export class SettingsGroup
          {
             if (group.entries[indx].name === constantName)
             {
-               return group.entries[indx].value;
+               return group.entries[indx];
             }
          }
       }

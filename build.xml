@@ -45,6 +45,9 @@
             <include name="**/*"/>
          </fileset>
       </copy>
+      <copy file='${dist.root}/branding/logo.png' todir='${image.dir}/vino-core/web'/>
+      <copy file='${dist.root}/branding/favicon.ico' todir='${image.dir}/vino-core/web'/>
+      <copy file='${dist.root}/branding/logo-small.png' todir='${image.dir}/vino-core/web/lib/abacus/img'/>
    </target>
 
 </project>

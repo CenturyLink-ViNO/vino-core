@@ -134,7 +134,7 @@ do $$
    end
 $$;
 
-CREATE TYPE vino.output_parameter_details_type_enum AS ENUM('REGEX', 'XPATH', 'JSONPATH', 'CUSTOM');
+CREATE TYPE vino.output_parameter_details_type_enum AS ENUM('REGEX', 'XPATH', 'XPATHFULL', 'JSONPATH', 'CUSTOM');
 
 do $$
    declare version abacus.version_information;

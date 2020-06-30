@@ -8,6 +8,11 @@ export default class ProjectManager
       this.instance = nodeRedInstance;
    }
 
+   public addNodeModule(user, module): any
+   {
+      return this.instance.runtime.nodes.addModule({ user: user, module: module.id, version: module.version});
+   }
+
    public getCurrentProject(): any
    {
       return this.instance.runtime.projects.getActiveProject({ user: { username: '_' } });

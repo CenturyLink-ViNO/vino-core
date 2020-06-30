@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, AfterLoad } from 'typeorm';
 import { IsNotEmpty, IsDefined } from 'class-validator';
 import { SettingsGroup } from './settingsGroup';
 import { ScalarList } from './scalarList';
+import crypto = require('crypto');
 
 export enum Type {
    string = 'string',
@@ -29,6 +30,9 @@ export class Scalar
    @Column({ default: false })
    public required: boolean;
 
+   @Column({ default: false, name: 'encrypt' })
+   public encrypt: boolean;
+
    @Column('enum', { name: 'type', enum: Type })
    public type: Type;
 
@@ -42,6 +46,50 @@ export class Scalar
    @ManyToOne(() => SettingsGroup, (parent) => parent.scalars, { onDelete: 'CASCADE' })
    @JoinColumn({ name: 'parent_group_id' })
    public parentGroup: SettingsGroup;
+
+   @BeforeInsert()
+   public encryptValues(): void
+   {
+      if (this.encrypt && this.type === Type.string)
+      {
+         this.value = this.encryptValue(this.value);
+      }
+   }
+
+   @AfterLoad()
+   public decryptValues(): void
+   {
+      if (this.encrypt && this.type === Type.string)
+      {
+         this.value = this.decryptValue(this.value);
+      }
+   }
+
+   // Below methods adapted from Open Source Github GIST: https://gist.github.com/vlucas/2bd40f62d20c1d49237a109d491974eb
+   // Original GIST authored by Vance Lucas (https://gist.github.com/vlucas)
+   private encryptValue(value)
+   {
+      // Provide a generated encrpytion key to prevent runtime errors.
+      // VINO_ENCRYPTION_KEY MUST BE SET for values to be secure
+      const encryptionKey = process.env.VINO_ENCRYPTION_KEY || 'AIikHOZ3k0httmd3n9dsd5LrFRemogLu';
+      const iv = crypto.randomBytes(16);
+      const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+      let encrypted = Buffer.concat([cipher.update(value), cipher.final()]);
+      return iv.toString('hex') + ':' + encrypted.toString('hex');
+   }
+
+   private decryptValue(value)
+   {
+      // Provide a generated encrpytion key to prevent runtime errors.
+      // VINO_ENCRYPTION_KEY MUST BE SET for values to be secure
+      const encryptionKey = process.env.VINO_ENCRYPTION_KEY || 'AIikHOZ3k0httmd3n9dsd5LrFRemogLu';
+      const textParts = value.split(':');
+      const iv = Buffer.from(textParts.shift(), 'hex');
+      const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+      const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+      const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+      return decrypted.toString();
+   }
 
    public defaultState(): boolean
    {
@@ -79,6 +127,15 @@ export class Scalar
          this.required = false;
       }
       return this.required;
+   }
+
+   public isEncrypted(): boolean
+   {
+      if (this.encrypt === null || this.encrypt === undefined)
+      {
+         this.encrypt = false;
+      }
+      return this.encrypt;
    }
 
    public getType(): Type
@@ -130,6 +187,7 @@ export class Scalar
       {
          this.value = toMergeFrom.getValue();
          this.required = toMergeFrom.isRequired();
+         this.encrypt = toMergeFrom.isEncrypted();
          this.type = toMergeFrom.getType();
          if (toMergeFrom.displayName !== null && toMergeFrom.displayName !== undefined &&
             toMergeFrom.displayName.trim() !== '')
@@ -163,6 +221,15 @@ export class Scalar
       {
          this.required = defaultScalar.isRequired();
       }
+      const newEncrypted = scalarToMerge.isEncrypted();
+      if (newEncrypted)
+      {
+         this.encrypt = newEncrypted;
+      }
+      else if (defaultScalar)
+      {
+         this.encrypt = defaultScalar.isEncrypted();
+      }
       const newType = scalarToMerge.getType();
       if (newType)
       {
@@ -187,14 +254,21 @@ export class Scalar
             this.value = defaultValues.getValue();
             this.isDefault = true;
          }
-         this.required = defaultValues.isRequired();
+         if (this.required === null || this.required === undefined)
+         {
+            this.required = defaultValues.isRequired();
+         }
+         if (this.encrypt === null || this.encrypt === undefined)
+         {
+            this.encrypt = defaultValues.isEncrypted();
+         }
          this.type = defaultValues.getType();
       }
    }
 
    public validate(treatAsDefault: boolean, existingDefaults: Scalar): void
    {
-      const toValidate: Scalar = new Scalar(this.name, this.getValue(), this.displayName, this.isRequired(), this.getType());
+      const toValidate: Scalar = new Scalar(this.name, this.getValue(), this.displayName, this.isRequired(), this.getType(), this.isEncrypted());
       toValidate.isDefault = this.defaultState();
       toValidate.inheritDefaults(existingDefaults);
       toValidate.isValid(treatAsDefault);
@@ -247,12 +321,13 @@ export class Scalar
       }
    }
 
-   public constructor(name: string, value: string, displayName: string, required: boolean, type?: Type)
+   public constructor(name: string, value: string, displayName: string, required: boolean, type?: Type, encrypt?: boolean)
    {
       this.name = name;
       this.value = value;
       this.displayName = displayName;
       this.required = required;
       this.type = type;
+      this.encrypt = encrypt;
    }
 }

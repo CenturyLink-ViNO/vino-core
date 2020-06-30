@@ -2,11 +2,13 @@ import * as express from 'express';
 import { getRepository } from 'typeorm';
 import { ServiceActivation } from '../../../entities/activation/ServiceActivation';
 import { StepWrapper } from '../../../entities/activation/StepWrapper';
+import { ServiceUtility } from '../utility/serviceUtility';
 import { Step } from '../../../entities/activation/Step';
 
 export default function(keycloak): express.Router
 {
    const configurationStoreRouter = express.Router();
+   const utility = new ServiceUtility();
 
    /**
     * @swagger
@@ -110,14 +112,15 @@ export default function(keycloak): express.Router
     *           items:
     *             $ref: '/swagger/serviceModels.yaml#/schemas/StepWrapper'
     */
-   configurationStoreRouter.get('/:jobId/steps', keycloak.protect('realm:user'), async function(req: express.Request, res: express.Response): Promise<void>
+   configurationStoreRouter.get('/:jobId/steps', keycloak.protect('realm:user'), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       try
       {
          const jobId = req.params.jobId;
          if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
          {
-            const steps = await getRepository(StepWrapper).find({
+            let steps = await getRepository(StepWrapper).find({
                select: ['id', 'nodeId'],
                where: [{ serviceActivation: jobId }]
             });
@@ -127,6 +130,10 @@ export default function(keycloak): express.Router
                   where: [{stepWrapper: step.id}]
                });
                step.steps = stepInstances;
+               if (!authToken.hasRealmRole('administrator'))
+               {
+                  step = await utility.protectEncryptedData(step);
+               }
             }
             res.send(steps);
          }
@@ -166,14 +173,19 @@ export default function(keycloak): express.Router
     *         schema:
     *           $ref: '/swagger/serviceModels.yaml#/schemas/StepWrapper'
     */
-   configurationStoreRouter.get('/:jobId/steps/:stepId', keycloak.protect('realm:user'), async function(req: express.Request, res: express.Response): Promise<void>
+   configurationStoreRouter.get('/:jobId/steps/:stepId', keycloak.protect('realm:user'), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       try
       {
-         const stepId = req.params.stepId;
+         let stepId = req.params.stepId;
          if (stepId !== null && stepId !== undefined && stepId.trim() !== '')
          {
-            const step = await getRepository(StepWrapper).findOne(stepId, { relations: ['steps'] });
+            let step = await getRepository(StepWrapper).findOne(stepId, { relations: ['steps'] });
+            if (!authToken.hasRealmRole('administrator'))
+            {
+               step = await utility.protectEncryptedData(step);
+            }
             res.send(step);
          }
          else

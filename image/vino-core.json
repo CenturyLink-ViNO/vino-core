@@ -1,12 +1,15 @@
-{
-   "apps" : [{
-     "name"        : "vino",
-     "script"      : "node",
-     "args"        : "/opt/vino/vino-core/app.js",
-     "watch"       : "/opt/vino/vino-core/",
-     "ignore_watch": ["/opt/vino/vino-core/node_modules", "/opt/vino/vino-core/nodes/node_modules", "/opt/vino/vino-core/nodes/lib"],
-     "error_file"  : "/var/log/vino/vino-core-err.log",
-     "out_file"    : "/var/log/vino/vino-core-out.log",
-     "node_args"   : "--max_old_space_size=8192"
-     }]
- }
+
+[
+  {
+     "uid"           : "vino",
+     "append"        : "true",
+     "fifo"          : "true",
+     "script"        : "app.js",
+     "sourceDir"     : "/opt/vino/vino-core/",
+     "workingDir"    : "/opt/vino/vino-core/",
+     "logFile"       : "/var/log/vino/vino-core-forever.log",
+     "errorFile"     : "/var/log/vino/vino-core-err.log",
+     "outFile"       : "/var/log/vino/vino-core-out.log",
+     "node_args"     : "--max_old_space_size=8192"
+  }
+]

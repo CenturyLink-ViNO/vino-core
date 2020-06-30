@@ -5,6 +5,7 @@ import { Parameter } from './Parameter';
 export enum OutputType {
    REGEX = 'REGEX',
    XPATH = 'XPATH',
+   XPATHFULL = 'XPATHFULL',
    JSONPATH = 'JSONPATH',
    CUSTOM = 'CUSTOM'
 }

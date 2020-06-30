@@ -77,6 +77,19 @@ export default function(nodeRed): express.Router
       }
    });
 
+   nodeRedRouter.post('/modules/add', async function(req, res: express.Response): Promise<void>
+   {
+      try
+      {
+         await manager.addNodeModule(req.body.user, req.body.module);
+         res.status(200).send();
+      }
+      catch (error)
+      {
+         res.status(500).send({ error: `Error while attempting to add node module: ${error}` });
+      }
+   });
+
    nodeRedRouter.post('/settings/keys', function(req, res: express.Response): void
    {
       try

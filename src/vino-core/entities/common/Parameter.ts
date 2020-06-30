@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, JoinColumn, BeforeInsert, AfterLoad } from 'typeorm';
 import { IsUUID, IsNotEmpty } from 'class-validator';
 import { OutputDetails } from './OutputDetails';
 import { InputDetails } from './InputDetails';
 import { Step } from '../activation/Step';
+import crypto = require('crypto');
 
 export enum ParameterType {
    STRING = 'string',
@@ -132,5 +133,71 @@ export class Parameter
       {
          this.numberListValue = JSON.parse(JSON.stringify(this.numberListValue));
       }
+   }
+
+   @BeforeInsert()
+   public encryptValues(): void
+   {
+      if (this.encrypt)
+      {
+         switch (this.parameterType)
+         {
+            case ParameterType.ENCODED_STRING:
+               this.encodedStringValue = this.encryptValue(this.encodedStringValue);
+               break;
+            case ParameterType.STRING:
+               this.stringValue = this.encryptValue(this.stringValue);
+               break;
+            default:
+               // If we're not dealing with a string or encoded string, there is nothing to encrypt.
+               break;
+         }
+      }
+   }
+
+   @AfterLoad()
+   public decryptValues(): void
+   {
+      if (this.encrypt)
+      {
+         switch (this.parameterType)
+         {
+            case ParameterType.ENCODED_STRING:
+               this.encodedStringValue = this.decryptValue(this.encodedStringValue);
+               break;
+            case ParameterType.STRING:
+               this.stringValue = this.decryptValue(this.stringValue);
+               break;
+            default:
+               // If we're not dealing with a string or encoded string, there is nothing to decrypt.
+               break;
+         }
+      }
+   }
+
+   // Below methods adapted from Open Source Github GIST: https://gist.github.com/vlucas/2bd40f62d20c1d49237a109d491974eb
+   // Original GIST authored by Vance Lucas (https://gist.github.com/vlucas)
+   private encryptValue(value)
+   {
+      // Provide a generated encrpytion key to prevent runtime errors.
+      // VINO_ENCRYPTION_KEY MUST BE SET for values to be secure
+      const encryptionKey = process.env.VINO_ENCRYPTION_KEY || 'AIikHOZ3k0httmd3n9dsd5LrFRemogLu';
+      const iv = crypto.randomBytes(16);
+      const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+      let encrypted = Buffer.concat([cipher.update(value), cipher.final()]);
+      return iv.toString('hex') + ':' + encrypted.toString('hex');
+   }
+
+   private decryptValue(value)
+   {
+      // Provide a generated encrpytion key to prevent runtime errors.
+      // VINO_ENCRYPTION_KEY MUST BE SET for values to be secure
+      const encryptionKey = process.env.VINO_ENCRYPTION_KEY || 'AIikHOZ3k0httmd3n9dsd5LrFRemogLu';
+      const textParts = value.split(':');
+      const iv = Buffer.from(textParts.shift(), 'hex');
+      const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+      const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+      const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+      return decrypted.toString();
    }
 }

@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import Keycloak from 'keycloak-connect';
 import http from 'http';
+import https from 'https';
 import RED from 'node-red';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
@@ -33,6 +34,9 @@ app.use(compression());
 
 app.set('trust proxy', true);
 
+const key = '/opt/vino/common/server.key';
+const cert = '/opt/vino/common/server.cert';
+
 const keycloakSettings = {
    'realm': process.env.KEYCLOAK_REALM,
    'auth-server-url': `${process.env.KEYCLOAK_PROTOCOL}://${process.env.KEYCLOAK_HOST}/auth`,
@@ -54,8 +58,20 @@ app.use(session({
    store: memoryStore
 }));
 
-const server = http.createServer(app);
+let server;
 const port = process.env.VINO_PORT || 3000;
+if (process.env.VINO_HTTPS)
+{
+   server = https.createServer({
+      key: fs.readFileSync(key),
+      cert: fs.readFileSync(cert)
+   }, app);
+}
+else
+{
+   server = http.createServer(app);
+}
+
 app.set('port', port);
 
 // Setup up swagger-jsdoc
@@ -118,19 +134,15 @@ const redSettings = {
       },
       header: {
          title: 'ViNO - Service Manager',
-         image: '/opt/vino/vino-core/web/centurylink-logo-black-text.png',
+         image: '/opt/vino/vino-core/web/logo.png',
          url: '/' // Make the header logo navigate to the main application
-      },
-      deployButton: {
-         type: 'simple',
-         label: 'Save'
       },
       projects: {
          // To enable the Projects feature, set this value to true
          enabled: true
       },
       userMenu: false, // hide the user menu - we want authentication to be handled by the main application
-      login: { image: '/opt/vino/vino-core/web/centurylink-logo-black-text.png' }
+      login: { image: '/opt/vino/vino-core/web/logo.png' }
    }
 };
 RED.init(server, redSettings);

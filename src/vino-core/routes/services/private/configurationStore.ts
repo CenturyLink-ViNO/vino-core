@@ -3,11 +3,13 @@ import { getRepository } from 'typeorm';
 import { ServiceActivation } from '../../../entities/activation/ServiceActivation';
 import { validate } from 'class-validator';
 import { SettingsUtility } from '../utility/settingsUtility';
+import { ServiceUtility } from '../utility/serviceUtility';
 
 export default function(keycloak): express.Router
 {
    const configurationStoreRouter = express.Router();
    const utility = new SettingsUtility();
+   const serviceUtility = new ServiceUtility();
 
    /**
     * DO-NOT-SHOW-IN-SWAGGER
@@ -29,8 +31,9 @@ export default function(keycloak): express.Router
     *       200:
     *         description: Service Activation
     */
-   configurationStoreRouter.post('/', keycloak.protect(utility.checkRoles(['realm:provisioner', 'realm:designer'])), async function(req, res: express.Response): Promise<void>
+   configurationStoreRouter.post('/', keycloak.protect(utility.checkRoles(['realm:provisioner', 'realm:designer'])), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       const repository = getRepository(ServiceActivation);
       const serviceActivation = repository.create(req.body);
       const validationErrors = await validate(serviceActivation);
@@ -42,6 +45,13 @@ export default function(keycloak): express.Router
       try
       {
          const result = await repository.save(serviceActivation);
+         if (!authToken.hasRealmRole('administrator') && result[0].steps)
+         {
+            for (let step of result[0].steps)
+            {
+               step = await serviceUtility.protectEncryptedData(step);
+            }
+         }
          res.send(result);
       }
       catch (error)
@@ -73,8 +83,9 @@ export default function(keycloak): express.Router
     *       200:
     *         description: Service Activation
     */
-   configurationStoreRouter.put('/:jobId', keycloak.protect('realm:administrator'), async function(req, res: express.Response): Promise<void>
+   configurationStoreRouter.put('/:jobId', keycloak.protect('realm:administrator'), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       const jobId = req.params.jobId;
       if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
       {
@@ -98,6 +109,10 @@ export default function(keycloak): express.Router
             else
             {
                result = await repository.save(serviceActivation);
+            }
+            if (!authToken.hasRealmRole('administrator') && result.steps)
+            {
+               result.steps = serviceUtility.protectEncryptedData(result.steps);
             }
             res.send(result);
          }

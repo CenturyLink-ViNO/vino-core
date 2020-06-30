@@ -184,6 +184,7 @@ schemas:
                 enum:
                     - REGEX
                     - XPATH
+                    - XPATHFULL
                     - JSONPATH
                     - CUSTOM
             format:

@@ -10,6 +10,7 @@ window.Scalar = function(data, isNew)
    this.idName = '';
    this.displayName = '';
    this.required = 'false';
+   this.encrypt = 'false';
    this.type = 'string';
    this.value = '';
    this.isDefault = '';
@@ -107,6 +108,26 @@ window.Scalar = function(data, isNew)
             label: 'Required',
             id: 'required',
             extraClasses: 'required',
+            type: 'select',
+            maxItems: 1,
+            options:
+            [
+               {
+                  label: 'True',
+                  value: 'true'
+               },
+               {
+                  label: 'False',
+                  value: 'false'
+               }
+            ],
+            isInline: true
+         },
+         encrypt:
+         {
+            label: 'Encrypt',
+            id: 'encrypt',
+            extraClasses: 'encrypt',
             type: 'select',
             maxItems: 1,
             options:
@@ -227,6 +248,7 @@ window.Scalar = function(data, isNew)
          json.name = outer.name;
          json.displayName = outer.displayName;
          json.required = outer.required === 'true';
+         json.encrypt = outer.encrypt === 'true';
          json.type = outer.type;
          if (!excludeIsDefaultFlag)
          {
@@ -278,6 +300,8 @@ window.Scalar = function(data, isNew)
          object.displayName = jQuery('#' + containerId).find('#displayName').
             val();
          object.required = jQuery('#' + containerId).find('#required').
+            val();
+         object.encrypt = jQuery('#' + containerId).find('#encrypt').
             val();
          object.type = jQuery('#' + containerId).find('#type').
             val();
@@ -357,6 +381,7 @@ window.Scalar = function(data, isNew)
             break;
          }
          this.required = String(jsonData.required);
+         this.encrypt = String(jsonData.encrypt);
          this.format = this.getFormat();
          this.format.submitFunction = outer.saveChanges;
       }

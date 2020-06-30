@@ -73,7 +73,7 @@ do $$
                NAME VARCHAR NOT NULL,
                DISPLAY_NAME VARCHAR NOT NULL DEFAULT '',
                IS_DEFAULT BOOLEAN DEFAULT FALSE,
-               PARENT_GROUP_ID UUID REFERENCES abacus_settings.SETTINGS_GROUP (id) ON DELETE CASCADE, 
+               PARENT_GROUP_ID UUID REFERENCES abacus_settings.SETTINGS_GROUP (id) ON DELETE CASCADE,
                PRIMARY KEY (ID)
             );
             perform abacus.initializeTable(schemaName, tableName, 1,0,0,0);
@@ -100,6 +100,7 @@ do $$
                DISPLAY_NAME VARCHAR NOT NULL DEFAULT '',
                VALUE VARCHAR NOT NULL,
                REQUIRED BOOLEAN NOT NULL DEFAULT FALSE,
+               ENCRYPT BOOLEAN NOT NULL DEFAULT FALSE,
                IS_DEFAULT BOOLEAN NOT NULL DEFAULT FALSE,
                TYPE abacus_settings.scalar_type_enum NOT NULL,
                PARENT_GROUP_ID UUID REFERENCES abacus_settings.SETTINGS_GROUP (id) ON DELETE CASCADE,

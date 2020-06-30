@@ -31,12 +31,20 @@ export default function(keycloak): express.Router
     *                   items:
     *                     $ref: '/swagger/settingsModels.yaml#/schemas/RootGroup'
     */
-   settingsServerRouter.get('/all', keycloak.protect(utility.checkRoles(['realm:administrator', 'realm:designer'])), async function(req: express.Request, res: express.Response): Promise<void>
+   settingsServerRouter.get('/all', keycloak.protect(utility.checkRoles(['realm:administrator', 'realm:designer', 'realm:provisioner'])), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       try
       {
          let settings: RootGroup[] = await getRepository(RootGroup).find({ relations: ['defaults', 'defaults.groups', 'groups'] });
          settings = await utility.expandRootGroups(settings);
+         if (!authToken.hasRealmRole('administrator') && Array.isArray(settings))
+         {
+            for (let rootGroup of settings)
+            {
+               rootGroup = await utility.protectEncryptedData(rootGroup);
+            }
+         }
          res.send({ entries: { value: settings } });
       }
       catch (error)
@@ -133,8 +141,9 @@ export default function(keycloak): express.Router
     *         schema:
     *           $ref: '/swagger/settingsModels.yaml#/schemas/RootGroup'
     */
-   settingsServerRouter.get('/group/:name', keycloak.protect(utility.checkRoles(['realm:administrator', 'realm:designer'])), async function(req: express.Request, res: express.Response): Promise<void>
+   settingsServerRouter.get('/group/:name', keycloak.protect(utility.checkRoles(['realm:administrator', 'realm:designer'])), async function(req: any, res: express.Response): Promise<void>
    {
+      const authToken = req.kauth.grant.access_token;
       const name = req.params.name;
       if (!name)
       {
@@ -146,6 +155,10 @@ export default function(keycloak): express.Router
          if (group)
          {
             group = await utility.expandRootGroup(group);
+            if (!authToken.hasRealmRole('administrator'))
+            {
+               group = await utility.protectEncryptedData(group);
+            }
             res.send(group);
          }
          else
