@@ -28,7 +28,7 @@ window.Loop = function(data, id)
 
          inputFormat = inputParam.getFormat();
 
-         key = 'step' + this.id + '_' + inputParam.parameterKey;
+         key = 'step' + this.id + '_' + inputParam.parameterKey.replace(/\W/g, '');
          inputFormat.id = key;
 
          this.editFormat[key] = inputFormat;

@@ -31,7 +31,7 @@ window.Conditional = function(data, id)
 
          inputFormat = inputParam.getFormat();
 
-         key = 'step' + this.id + '_' + inputParam.parameterKey;
+         key = 'step' + this.id + '_' + inputParam.parameterKey.replace(/\W/g, '');
          inputFormat.id = key;
 
          if (inputParam.inputDetails.parameterSource === 'constants' ||

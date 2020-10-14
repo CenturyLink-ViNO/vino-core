@@ -306,7 +306,7 @@ window.Parameter = function(data)
             };
       }
       format.label = this.parameterName;
-      format.id = this.parameterKey;
+      format.id = this.parameterKey.replace(/\W/g, '');
       return format;
    };
 
