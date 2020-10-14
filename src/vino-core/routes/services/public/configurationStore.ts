@@ -198,5 +198,48 @@ export default function(keycloak): express.Router
          res.status(500).send({ error: 'Error retrieving service activation step metadata' });
       }
    });
+   /**
+    * @swagger
+    * /services/activated/{jobId}/activationTemplate:
+    *   get:
+    *     tags:
+    *       - Services
+    *     description: Get the original activation template used for an activated service
+    *     summary: Returns the activation template that matches the given Job-ID
+    *     parameters:
+    *       - name: jobId
+    *         in: path
+    *         description: Job-ID of the Activated Service that needs to be fetched
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: Activation Template 
+    *         schema:
+    *           $ref: '/swagger/serviceModels.yaml#/schemas/ServiceTemplate'
+    */
+   configurationStoreRouter.get('/:jobId/activationTemplate', keycloak.protect('realm:user'), async function(req: any, res: express.Response): Promise<void>
+   {
+      try
+      {
+         const jobId = req.params.jobId;
+         if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
+         {
+            const activation = await getRepository(ServiceActivation).findOne(jobId, {
+               select: ['inputTemplate'],
+               relations: ['status']
+            });
+            res.send(activation.inputTemplate);
+         }
+         else
+         {
+            res.status(400).send({ error: 'You must specify the ID of the service activation you are querying for.' });
+         }
+      }
+      catch (error)
+      {
+         res.status(500).send({ error: 'Error retrieving service activation template' });
+      }
+   });
    return configurationStoreRouter;
 }

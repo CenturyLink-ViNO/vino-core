@@ -18,11 +18,11 @@ window.ServiceListController = function(baseId)
    this.render = function()
    {
       jQuery.when(
-         jsInclude('/vino/list/View.js'),
-         jsInclude('/vino/list/Model.js'),
-         jsInclude('/vino/list/DataObject.js'),
-         jsInclude('/vino/status/Controller.js'),
-         jsInclude('/vino/serviceActivation/Model.js')
+         jsInclude('vino/list/View.js'),
+         jsInclude('vino/list/Model.js'),
+         jsInclude('vino/list/DataObject.js'),
+         jsInclude('vino/status/Controller.js'),
+         jsInclude('vino/serviceActivation/Model.js')
       ).done(function()
       {
          outer.view = new ServiceListView(outer, outer.baseId);
@@ -264,36 +264,41 @@ window.ServiceListController = function(baseId)
       const outer = this;
       const model = new ServiceActivationModel();
 
-      if (this.selectedInputTemplate)
+      jQuery.when(
+          outer.serviceListModel.loadActivationTemplate(outer.selectedJobId)
+      ).done(function(activationTemplate)
       {
-         jQuery.when(model.activateService(this.selectedServiceId, this.selectedInputTemplate)).done(function(data)
+         if (activationTemplate)
          {
-            const statusController = new StatusController(outer.baseId, outer.selectedServiceId);
-            const jobId = statusController.parseJobId(data.data);
-            if (jobId === undefined)
+            jQuery.when(model.activateService(outer.selectedServiceId, activationTemplate)).done(function(data)
             {
-               outer.view.showError('Failure to get job ID');
-            }
-            else
-            {
-               jQuery.when(statusController.render('Activating Service...', true, outer)).done(function()
+               const statusController = new StatusController(outer.baseId, outer.selectedServiceId);
+               const jobId = statusController.parseJobId(data.data);
+               if (jobId === undefined)
                {
-                  statusController.pollStatus(jobId);
-               });
-            }
-         });
-      }
-      else
-      {
-         outer.view.showError('Existing service does not contain original activation template. Cannot reactivate.');
-      }
+                  outer.view.showError('Failure to get job ID');
+               }
+               else
+               {
+                  jQuery.when(statusController.render('Activating Service...', true, outer)).done(function()
+                  {
+                     statusController.pollStatus(jobId);
+                  });
+               }
+            });
+         }
+         else
+         {
+            outer.view.showError('Existing service does not contain original activation template. Cannot reactivate.');
+         }
+      });
    };
    this.ctor = function(theBaseId)
    {
       this.baseId = theBaseId;
       this.selectedJobId = null;
       this.selectedJobStatus = null;
-      this.statusUrl = '/rest/service/status/';
+      this.statusUrl = 'rest/service/status/';
       return this;
    };
    return this.ctor(baseId);

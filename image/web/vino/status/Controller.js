@@ -15,9 +15,9 @@ window.StatusController = function(baseId, serviceId)
       const def = jQuery.Deferred(function(deferred)
       {
          jQuery.when(
-            jsInclude('/vino/status/View.js'),
-            jsInclude('/vino/status/Model.js'),
-            jsInclude('/vino/status/DataObject.js')
+            jsInclude('vino/status/View.js'),
+            jsInclude('vino/status/Model.js'),
+            jsInclude('vino/status/DataObject.js')
          ).done(function()
          {
             outer.model = new StatusModel();

@@ -37,6 +37,8 @@ app.set('trust proxy', true);
 const key = '/opt/vino/common/server.key';
 const cert = '/opt/vino/common/server.cert';
 
+const URI_PREFIX = process.env.URI_PREFIX ? '/' + process.env.URI_PREFIX : '';
+
 const keycloakSettings = {
    'realm': process.env.KEYCLOAK_REALM,
    'auth-server-url': `${process.env.KEYCLOAK_PROTOCOL}://${process.env.KEYCLOAK_HOST}/auth`,
@@ -94,7 +96,7 @@ app.get('/swagger-rest.json', (req, res) =>
    res.send(swaggerSpec);
 });
 
-app.get('/swagger-flows.json', async function(req, res)
+app.get(`${URI_PREFIX}/swagger-flows.json`, async function(req, res)
 {
    res.setHeader('Content-Type', 'application/json');
    const flowsJSON = await swaggerUtility.generateFlowsSwagger();
@@ -103,25 +105,25 @@ app.get('/swagger-flows.json', async function(req, res)
 
 // Serve up swagger-ui at /swagger via static route
 const docsHandler = express.static(path.join(__dirname, '/etc/swaggerModels/'));
-app.get(/^\/swagger(\/.*)?$/, function(req, res, next)
+app.get(new RegExp(`${URI_PREFIX}/swagger(\/.*)?$`), function(req, res, next)
 {
-   if (req.url === '/swagger')
+   if (req.url === `${URI_PREFIX}/swagger`)
    {
       res.writeHead(302, { 'Location': req.url + '/' });
       res.end();
       return;
    }
-   req.url = req.url.substr('/swagger'.length);
+   req.url = req.url.replace(`${URI_PREFIX}/swagger`, '');
    return docsHandler(req, res, next);
 });
 
-app.use('/swaggerUI', express.static(path.join(__dirname, '/libraries/swagger-ui/')));
+app.use(`${URI_PREFIX}/swaggerUI`, express.static(path.join(__dirname, '/libraries/swagger-ui/')));
 
 // app.use('/swaggerModels', express.static(__dirname + '/etc/swaggerModels/'));
 
 const redSettings = {
-   httpAdminRoot: '/service-manager',
-   httpNodeRoot: '/api',
+   httpAdminRoot: `${URI_PREFIX}/service-manager`,
+   httpNodeRoot: `${URI_PREFIX}/api`,
    nodesDir: path.join(__dirname, '/nodes'),
    userDir: '/root/.node-red/',
    functionGlobalContext: {},
@@ -153,18 +155,18 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'web')));
-app.use('/nodes/lib/ui', express.static(path.join(__dirname, 'nodes/lib/ui')));
+app.use(`${URI_PREFIX}/*nodes/lib/ui`, express.static(path.join(__dirname, 'nodes/lib/ui')));
 
 app.use(morgan('combined', {
    stream: fs.createWriteStream('/var/log/vino/ip-access.log', {flags: 'a'})
 }));
 
 app.use(keycloak.middleware());
-app.use('/', express.static('./web'));
-app.use('/rest', keycloak.protect(), apiRouter(keycloak));
-app.use('/ui', keycloak.protect(), uiRouter());
-app.use('/files', keycloak.protect(), fileUploadRouter);
-app.use('/projects', keycloak.protect('realm:administrator'), projectsRouter(RED));
+app.use(`${URI_PREFIX}/`, express.static('./web'));
+app.use(`${URI_PREFIX}/*rest`, keycloak.protect(), apiRouter(keycloak));
+app.use(`${URI_PREFIX}/ui`, keycloak.protect(), uiRouter());
+app.use(`${URI_PREFIX}/*files`, keycloak.protect(), fileUploadRouter);
+app.use(`${URI_PREFIX}/projects`, keycloak.protect('realm:administrator'), projectsRouter(RED));
 
 app.use(redSettings.httpAdminRoot, keycloak.protect('realm:user'), RED.httpAdmin);
 

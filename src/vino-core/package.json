@@ -1,6 +1,6 @@
 {
   "name": "vino-core",
-  "version": "1.0.0",
+  "version": "@VERSION@",
   "description": "This project provides the build management layer for an Abacus Product.",
   "author": "Centurylink",
   "license": "ISC",
@@ -25,13 +25,15 @@
     "http": "0.0.0",
     "keycloak-connect": "^4.8.3",
     "morgan": "^1.9.1",
-    "node-red": "^0.20.5",
+    "node-red": "~1.1.2",
     "pg": "^7.8.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "swagger-jsdoc": "^3.2.7",
-    "typeorm": "^0.2.12"
+    "typeorm": "^0.2.12",
+    "vino-node-red-nodes": "file:./vino-node-red-nodes-@VERSION@.tgz",
+    "vino-core-nodes": "file:./vino-core-nodes-@VERSION@.tgz"
   },
   "devDependencies": {
     "@types/express": "^4.16.1",

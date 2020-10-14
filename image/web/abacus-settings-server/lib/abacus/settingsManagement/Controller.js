@@ -9,11 +9,11 @@
 window.AbacusSettingsController = function(baseId)
 {
    const jsFiles = [];
-   jsFiles.push('/abacus-settings-server/lib/abacus/data/Scalar.js');
-   jsFiles.push('/abacus-settings-server/lib/abacus/data/ScalarList.js');
-   jsFiles.push('/abacus-settings-server/lib/abacus/data/SettingsGroup.js');
-   jsFiles.push('/abacus-settings-server/lib/abacus/settingsManagement/Model.js');
-   jsFiles.push('/abacus-settings-server/lib/abacus/settingsManagement/View.js');
+   jsFiles.push('abacus-settings-server/lib/abacus/data/Scalar.js');
+   jsFiles.push('abacus-settings-server/lib/abacus/data/ScalarList.js');
+   jsFiles.push('abacus-settings-server/lib/abacus/data/SettingsGroup.js');
+   jsFiles.push('abacus-settings-server/lib/abacus/settingsManagement/Model.js');
+   jsFiles.push('abacus-settings-server/lib/abacus/settingsManagement/View.js');
    this.renderPanel = function()
    {
       const uiBase = this.baseId;

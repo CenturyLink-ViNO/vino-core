@@ -38,7 +38,7 @@ window.StatusView = function(baseId)
                   attr('data-dismiss', 'modal').
                   on('click', function()
                   {
-                     window.location.href = '/';
+                     window.location.href = '';
                   })).
                append(jQuery('<button>').
                   text('Cancel Activation').

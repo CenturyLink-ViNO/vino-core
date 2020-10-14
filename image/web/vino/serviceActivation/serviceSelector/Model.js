@@ -31,7 +31,7 @@ window.ServiceSelectorModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services';
+         const url = 'rest/services';
          const success = function(json)
          {
             if (json === undefined)

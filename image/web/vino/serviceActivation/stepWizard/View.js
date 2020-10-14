@@ -130,8 +130,16 @@ window.StepWizardView = function(controller, baseId)
       jQuery('#' + step.id + '_conditionalPreview').remove();
       jQuery('#step' + step.id + '_falsePanel').show();
       jQuery('#step' + step.id + '_truePanel').show();
-      const right = jQuery('#step' + step.id + '_rhs').val();
-      const left = jQuery('#step' + step.id + '_lhs').val();
+      let right = jQuery('#step' + step.id + '_rhs').val();
+      let left = jQuery('#step' + step.id + '_lhs').val();
+      if (right)
+      {
+         right = right.trim();
+      }
+      if (left)
+      {
+         left = left.trim();
+      }
       const operation = jQuery('#step' + step.id + '_op').val();
       const dataType = jQuery('#step' + step.id + '_dataType').val();
       let conditionalString = 'The conditional will evaluate to true if: ' + step.getConditionalString(right, left, operation, dataType);
@@ -450,7 +458,18 @@ window.StepWizardView = function(controller, baseId)
                }
                else
                {
-                  step[field] = jQuery('#' + step.format[field].id).val();
+                  const valueFromField = jQuery('#' + step.format[field].id).val();
+                  if (valueFromField)
+                  {
+                     if (valueFromField.trim)
+                     {
+                        step[field] = valueFromField.trim();
+                     }
+                     else
+                     {
+                        step[field] = valueFromField
+                     }
+                  }
                }
             }
          }
@@ -468,8 +487,16 @@ window.StepWizardView = function(controller, baseId)
          {
             if (list.hasOwnProperty(listIndex))
             {
-               const boolean = list[listIndex].trim();
-               ret.push(boolean === 'true');
+               if (list[listIndex].trim)
+               {
+                  const boolean = list[listIndex].trim();
+                  ret.push(boolean === 'true');
+               }
+               else
+               {
+                  const boolean = list[listIndex];
+                  ret.push(boolean === 'true');
+               }
             }
          }
       }
@@ -479,8 +506,15 @@ window.StepWizardView = function(controller, baseId)
          {
             if (list.hasOwnProperty(listIndex))
             {
-               const number = list[listIndex].trim();
-               ret.push(parseFloat(number));
+               if (list[listIndex] && list[listIndex].trim)
+               {
+                  const number = list[listIndex].trim();
+                  ret.push(parseFloat(number));
+               }
+               else
+               {
+                  ret.push(parseFloat(list[listIndex]));
+               }
             }
          }
       }
@@ -490,7 +524,14 @@ window.StepWizardView = function(controller, baseId)
          {
             if (list.hasOwnProperty(listIndex))
             {
-               ret.push(list[listIndex].trim());
+               if (list[listIndex] && list[listIndex].trim)
+               {
+                  ret.push(list[listIndex].trim());
+               }
+               else
+               {
+                  ret.push(list[listIndex]);
+               }
             }
          }
       }

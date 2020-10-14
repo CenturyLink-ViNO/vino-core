@@ -12,9 +12,9 @@ const SettingsManagementModule = function()
    {
       pageModule.buildPage(
          'settingsMgtPanel', 'Settings Management',
-         '/abacus-settings-server/lib/abacus/settingsManagement/Help.html'
+         'abacus-settings-server/lib/abacus/settingsManagement/Help.html'
       );
-      jQuery.when(jsInclude('/abacus-settings-server/lib/abacus/settingsManagement/Controller.js')).done(function()
+      jQuery.when(jsInclude('abacus-settings-server/lib/abacus/settingsManagement/Controller.js')).done(function()
       {
          const SettingsController = new AbacusSettingsController('settingsMgtPanel-bdy');
          SettingsController.renderPanel();

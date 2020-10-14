@@ -30,7 +30,7 @@ select abacus_ui.uiStructureAddMenuItem('user', null, 'control_menu', null, null
 
 -- right side should have '<USERNAME> menu with user icon, with 'Account Settings' and 'Logout'
 select abacus_ui.uiStructureAddMenuItem('user', 'control_menu', 'user_menu', 'user_menu', null,
-                                        '/lib/abacus/user/user.authentication.js', null,
+                                        'lib/abacus/user/user.authentication.js', null,
                                         'userModule.addUserPanel()', null, null, 2);
 
 select abacus_ui.uiStructureAddMenuItem('user', null, 'main_menu', null, null, null, null, null, null, null, 0);
@@ -66,11 +66,11 @@ select abacus_ui.uiStructureAddMenuItem('user', 'main_menu', 'help', 'Help', nul
 --                                        'question-sign',  2);
 
 select abacus_ui.uiStructureAddMenuItem('user', 'help', 'swDetailsNew', 'Installed Docker Containers Details', null,
-                                        '/lib/abacus/help/about/containers/controller.js','abacus.Containers.controller.showPanel()',
+                                        'lib/abacus/help/about/containers/controller.js','abacus.Containers.controller.showPanel()',
                                         null, null,
                                         'question-sign',  1);
 
 select abacus_ui.uiStructureAddMenuItem('user', 'help', 'wshelp', 'Web Service Documentation', '_self',
                                         null, null,
-                                        null, '/swagger',
+                                        null, 'swagger',
                                         'resize-horizontal', 3);

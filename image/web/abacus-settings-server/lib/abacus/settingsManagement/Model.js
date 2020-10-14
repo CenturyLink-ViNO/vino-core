@@ -28,7 +28,7 @@ window.AbacusSettingsManagementModel = function(controller)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/settings/all';
+         const url = 'rest/settings/all';
          const success = function(json)
          {
             if (json === undefined)
@@ -57,7 +57,7 @@ window.AbacusSettingsManagementModel = function(controller)
       settingsData = JSON.stringify(data);
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/settings/replace';
+         const url = 'rest/settings/replace';
          const success = function(json)
          {
             deferred.resolve(json);
@@ -87,7 +87,7 @@ window.AbacusSettingsManagementModel = function(controller)
       settingsData = JSON.stringify(data);
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/settings/group';
+         const url = 'rest/settings/group';
          const success = function(json)
          {
             deferred.resolve(json);
@@ -115,7 +115,7 @@ window.AbacusSettingsManagementModel = function(controller)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/settings/deleteRootGroup/' + data;
+         const url = 'rest/settings/deleteRootGroup/' + data;
          const success = function(json)
          {
             deferred.resolve(json);

@@ -45,7 +45,7 @@ window.SettingsServerModel = function()
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/settings/all';
+         const url = 'rest/settings/all';
          const success = function(json)
          {
             if (json === undefined)

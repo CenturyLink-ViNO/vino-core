@@ -14,7 +14,7 @@ window.ServiceListModel = function(json)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/activated/?filterVisible=' + filterVisible;
+         const url = 'rest/services/activated/?filterVisible=' + filterVisible;
          const success = function(data)
          {
             if (data === undefined)
@@ -45,7 +45,7 @@ window.ServiceListModel = function(json)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/activated/' + jobId;
+         const url = 'rest/services/activated/' + jobId;
          const success = function(data)
          {
             if (data === undefined)
@@ -84,7 +84,7 @@ window.ServiceListModel = function(json)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/activated/' + jobId + '/steps';
+         const url = 'rest/services/activated/' + jobId + '/steps';
          const success = function(data)
          {
             if (data === undefined)
@@ -123,7 +123,7 @@ window.ServiceListModel = function(json)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/activated/' + jobId + '/steps/' + stepId;
+         const url = 'rest/services/activated/' + jobId + '/steps/' + stepId;
          const success = function(data)
          {
             if (data === undefined)
@@ -158,11 +158,42 @@ window.ServiceListModel = function(json)
       });
       return def.promise();
    };
+   this.loadActivationTemplate = function(jobId)
+   {
+      const def = jQuery.Deferred(function(deferred)
+      {
+         const url = 'rest/services/activated/' + jobId + '/activationTemplate';
+         const success = function(data)
+         {
+            if (data === undefined)
+            {
+               deferred.reject();
+            }
+            else
+            {
+               deferred.resolve(data);
+            }
+         };
+         const err = function(xhr)
+         {
+            if (xhr.status === 404)
+            {
+               deferred.resolve();
+            }
+            else
+            {
+               deferred.reject();
+            }
+         };
+         outer.callWebservice(url, 'GET', 'json', null, success, err);
+      });
+      return def.promise();
+   };
    this.changeVisibilty = function(jobId, visible)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/service/activated/' + jobId + '/' + visible;
+         const url = 'rest/service/activated/' + jobId + '/' + visible;
          const success = function(data)
          {
             if (data === undefined)
@@ -202,7 +233,7 @@ window.ServiceListModel = function(json)
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/activationlog/' + jobId;
+         const url = 'rest/services/activationlog/' + jobId;
          const success = function(log)
          {
             if (log === undefined)

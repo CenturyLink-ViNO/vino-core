@@ -98,7 +98,7 @@ window.ServiceActivationView = function(controller, baseId)
                   handlers: {
                      'change': function()
                      {
-                        outer.controller.serviceTemplate.customerName = jQuery(this).val();
+                        outer.controller.serviceTemplate.customerName = jQuery(this).val().trim();
                      }
                   }
                },
@@ -111,7 +111,7 @@ window.ServiceActivationView = function(controller, baseId)
                   handlers: {
                      'change': function()
                      {
-                        outer.controller.serviceTemplate.notes = jQuery(this).val();
+                        outer.controller.serviceTemplate.notes = jQuery(this).val().trim();
                      }
                   }
                }

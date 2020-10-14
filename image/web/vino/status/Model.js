@@ -25,7 +25,7 @@ window.StatusModel = function()
    {
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/' + serviceId + '/status/' + jobId;
+         const url = 'rest/services/' + serviceId + '/status/' + jobId;
          const success = function(json)
          {
             if (json === undefined)

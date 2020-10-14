@@ -15,8 +15,8 @@ window.ServiceActivationDetailController = function(service, baseId, panel, mode
       const def = new jQuery.Deferred(function(deferred)
       {
          jQuery.when(
-            jsInclude('/vino/serviceActivationDetails/Data.js'),
-            jsInclude('/vino/serviceActivationDetails/View.js')
+            jsInclude('vino/serviceActivationDetails/Data.js'),
+            jsInclude('vino/serviceActivationDetails/View.js')
          ).done(function()
          {
             outer.view = new ServiceActivationDetailView(outer);

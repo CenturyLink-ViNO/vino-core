@@ -108,6 +108,19 @@ do $$
                PRIMARY KEY (ID)
             );
             perform abacus.initializeTable(schemaName, tableName, 1,0,0,0);
+         when 1 then
+            case version.minor
+               when 0 then
+                  case version.fix
+                     when 0 then
+                           ALTER TABLE abacus_settings.SCALAR ADD COLUMN ENCRYPT BOOLEAN NOT NULL DEFAULT FALSE;
+                           perform abacus.tableVersion(schemaName, tableName, 1,0,1,0);
+                     else
+                        raise info '%.% table at version [%.%.%.%]', schemaName, tableName, version.major, version.minor, version.fix, version.build;
+                  end case;
+               else
+                  raise info '%.% table at version [%.%.%.%]', schemaName, tableName, version.major, version.minor, version.fix, version.build;
+            end case;
          else
             raise info '%.% table at version [%.%.%.%]', schemaName, tableName, version.major, version.minor, version.fix, version.build;
       end case;

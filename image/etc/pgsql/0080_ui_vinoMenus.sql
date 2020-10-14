@@ -10,28 +10,28 @@ SET client_min_messages=WARNING;
 
 select abacus_ui.uiStructureAddMenuItem('user', 'main_menu', 'main', 'Main', '_self',
                                         null, null,
-                                        null, '/',
+                                        null, '',
                                         'home', 1);
 
 select abacus_ui.uiStructureAddMenuItem('designer', 'main_menu', 'designer', 'Service Manager', '_self',
                                         null, null,
-                                        null, '/service-manager',
+                                        null, 'service-manager',
                                        'pencil', 2);
 
 select abacus_ui.uiStructureAddMenuItem('provisioner,designer', 'main_menu', 'generic_services', 'Activate a Service', null,
-                                        '/vino/serviceActivation/Controller.js', 'serviceActivationController.showActivationPage()',
+                                        'vino/serviceActivation/Controller.js', 'serviceActivationController.showActivationPage()',
                                         null, null,
                                         'resize-horizontal', 3);
 
 
 select abacus_ui.uiStructureAddMenuItem('administrator,designer', 'settings', 'settings_mgt', 'Settings Management', null,
-                                        '/abacus-settings-server/lib/abacus/settingsManagement/SettingsManagement.js', 'settingsManagementModule.showSettingsManagement()',
+                                        'abacus-settings-server/lib/abacus/settingsManagement/SettingsManagement.js', 'settingsManagementModule.showSettingsManagement()',
                                         null, null,
                                         'th-list', 40);
 
 select abacus_ui.uiStructureAddMenuItem('administrator', 'settings', 'user_mgt', 'User Management', null,
                                         null, null,
-                                        null, '/auth',
+                                        null, 'auth',
                                         'user', 45);
 
 -- select abacus_ui.uiStructureAddMenuItem('admin', 'settings', 'controlpod_mgt', 'Control Pod Management', null,

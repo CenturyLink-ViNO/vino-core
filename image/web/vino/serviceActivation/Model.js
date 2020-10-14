@@ -27,7 +27,7 @@ window.ServiceActivationModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services';
+         const url = 'rest/services';
          const success = function(json)
          {
             if (json === undefined)
@@ -53,7 +53,7 @@ window.ServiceActivationModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/' + serviceId + '/template';
+         const url = 'rest/services/' + serviceId + '/template';
          const success = function(json)
          {
             if (json === undefined)
@@ -78,7 +78,7 @@ window.ServiceActivationModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/' + serviceId + '/activate';
+         const url = 'rest/services/' + serviceId + '/activate';
          const success = function(json)
          {
             if (json === undefined)
@@ -103,7 +103,7 @@ window.ServiceActivationModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/' + serviceId + '/cancel/' + jobId;
+         const url = 'rest/services/' + serviceId + '/cancel/' + jobId;
 
          const success = function(json)
          {
@@ -129,7 +129,7 @@ window.ServiceActivationModel = function()
       const outer = this;
       const def = jQuery.Deferred(function(deferred)
       {
-         const url = '/rest/services/' + serviceId + '/deactivate/' + jobId;
+         const url = 'rest/services/' + serviceId + '/deactivate/' + jobId;
 
          const success = function(json)
          {

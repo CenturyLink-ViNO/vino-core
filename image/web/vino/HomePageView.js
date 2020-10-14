@@ -27,7 +27,7 @@ window.HomePageView = function()
       // let temporaryPlaceholder = jQuery('<img>').attr('src', '/vino/images/vino.svg');
       // temporaryPlaceholderPanel.append(temporaryPlaceholder);
       // panel.append(temporaryPlaceholderPanel);
-      jQuery.when(jsInclude('/vino/list/Controller.js')).done(function()
+      jQuery.when(jsInclude('vino/list/Controller.js')).done(function()
       {
          const serviceListController = new ServiceListController(outer.baseId);
          serviceListController.render();

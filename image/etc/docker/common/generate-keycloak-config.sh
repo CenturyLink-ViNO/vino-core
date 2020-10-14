@@ -1,6 +1,7 @@
 #!/bin/bash
 
 realm="${KEYCLOAK_REALM}"
+
 url="${KEYCLOAK_PROTOCOL}://${KEYCLOAK_HOST}/auth"
 resourceId="${KEYCLOAK_CLIENT_ID}"
 secret="${KEYCLOAK_CLIENT_SECRET}"

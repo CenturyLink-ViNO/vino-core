@@ -36,18 +36,46 @@
 
    <target name='deps'/>
 
-   <target name='vino-core.build'>
-      <mkdir dir='${tmp.npm.build.dir}'/>
-      <npm.build src.dir='${vino-core.dir}/src/vino-core' dist.dir='${tmp.npm.build.dir}'/>
-      <tsc.build src.dir='${tmp.npm.build.dir}' dist.dir='${tmp.npm.build.dir}/dist'/>
-      <copy todir="${image.dir}/vino-core">
-         <fileset dir="${vino-core.dir}/image">
-            <include name="**/*"/>
-         </fileset>
-      </copy>
-      <copy file='${dist.root}/branding/logo.png' todir='${image.dir}/vino-core/web'/>
-      <copy file='${dist.root}/branding/favicon.ico' todir='${image.dir}/vino-core/web'/>
-      <copy file='${dist.root}/branding/logo-small.png' todir='${image.dir}/vino-core/web/lib/abacus/img'/>
+   <target name='vino-core.build' depends="deps">
+       <mkdir dir='${tmp.npm.build.dir}'/>
+       <copy todir="${tmp.npm.build.dir}">
+           <fileset dir="${vino-core.dir}">
+               <include name="*.json"/>
+           </fileset>
+           <fileset dir="${tree.top}/build/npm">
+               <include name="vino-node-red-nodes*.tgz"/>
+               <include name="vino-core-nodes*.tgz"/>
+           </fileset>
+       </copy>
+       <copy tofile='${tmp.npm.build.dir}/package.json' file='src/vino-core/package.json' overwrite='true'>
+           <filterset>
+               <filter token='VERSION' value="${version.string}"/>
+           </filterset>
+       </copy>
+       <npm.build src.dir='${vino-core.dir}/src/vino-core' dist.dir='${tmp.npm.build.dir}'/>
+       <tsc.build src.dir='${tmp.npm.build.dir}' dist.dir='${tmp.npm.build.dir}/dist'/>
+       <mkdir dir="${tree.top}/build/npm"/>
+       <exec executable="cmd" dir="${tmp.npm.build.dir}/dist" failonerror='true' osfamily='windows'><!-- output="${tmp.npm.build.dir}/dist/out.txt">-->
+           <arg value='/c'/>
+           <arg value='npm'/>
+           <arg value="pack"/>
+       </exec>
+       <exec executable="npm" dir="${tmp.npm.build.dir}/dist" failonerror='true' osfamily='unix'><!-- output="${tmp.npm.build.dir}/dist/out.txt">-->
+           <arg value="pack"/>
+       </exec>
+       <copy todir="${tree.top}/build/npm">
+           <fileset dir="${tmp.npm.build.dir}/dist">
+               <include name="*.tgz"/>
+           </fileset>
+       </copy>
+       <copy todir="${image.dir}/vino-core">
+           <fileset dir="${vino-core.dir}/image">
+               <include name="**/*"/>
+           </fileset>
+       </copy>
+       <copy file='${dist.root}/branding/logo.png' todir='${image.dir}/vino-core/web'/>
+       <copy file='${dist.root}/branding/favicon.ico' todir='${image.dir}/vino-core/web'/>
+       <copy file='${dist.root}/branding/logo-small.png' todir='${image.dir}/vino-core/web/lib/abacus/img'/>
    </target>
 
 </project>
