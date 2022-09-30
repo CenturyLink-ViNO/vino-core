@@ -37,6 +37,9 @@ export class ServiceActivation
    @Column({ nullable: true })
    public notes: string;
 
+   @Column({ name: 'is_us_federal_customer' })
+   public isUsFederalCustomer: boolean = false;
+
    @Column({ name: 'settings_root_group', nullable: true })
    public settingsRootGroup: string;
 
@@ -45,7 +48,7 @@ export class ServiceActivation
 
    @Column('jsonb', { name: 'msg', nullable: true })
    public msg: object;
-
+ 
    @OneToMany(() => StepWrapper, (step) => step.serviceActivation, { cascade: true, onDelete: 'CASCADE' })
    public steps: StepWrapper[];
 
@@ -56,6 +59,9 @@ export class ServiceActivation
    public afterLoad(): void
    {
       this.startTime = Number(this.startTime);
-      this.status = this.status.sort((first, second) => first.statusIndex - second.statusIndex);
+      if (this.status)
+      {
+         this.status = this.status.sort((first, second) => first.statusIndex - second.statusIndex);
+      }
    }
 }

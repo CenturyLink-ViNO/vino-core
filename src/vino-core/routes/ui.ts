@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm';
 
 import MenuItem from '../entities/ui/MenuItem';
 import InstalledDockerContainers from '../entities/ui/InstalledDockerContainers';
+import CUIAcknowledgement from '../entities/ui/CUIAcknowledgement';
 
 async function filterMenuItemChildren(menuItems, token): Promise<MenuItem[]>
 {
@@ -93,6 +94,45 @@ export default function(): express.Router
          const details = await InstalledDockerContainers.details();
          // Wrap it to match existing API
          res.send({ containers: details });
+      }
+      catch (err)
+      {
+         res.status(500).send(err);
+      }
+   });
+   uiRouter.get('/cuiAcknowledgment', async function(req: express.Request & {kauth: any}, res): Promise<void>
+   {
+      try
+      {
+         const authToken = req.kauth?.grant?.access_token;
+         const userId = authToken.content.sub;
+         const result = await getRepository(CUIAcknowledgement).findOne(userId);
+         if (result)
+         {
+            res.status(204).send();
+         }
+         else
+         {
+            res.status(404).send();
+         }
+      }
+      catch (err)
+      {
+         res.status(500).send(err);
+      }
+   });
+   uiRouter.post('/cuiAcknowledgment', async function(req: express.Request & {kauth: any}, res): Promise<void>
+   {
+      try
+      {
+         const authToken = req.kauth?.grant?.access_token;
+         const userId = authToken.content.sub;
+         const cuiAck = getRepository(CUIAcknowledgement).create({ userId: userId });
+         const result = await getRepository(CUIAcknowledgement).save(cuiAck);
+         if (result)
+         {
+            res.status(204).send();
+         }
       }
       catch (err)
       {

@@ -25,9 +25,10 @@ do $$
                SETTINGS_ROOT_GROUP VARCHAR,
                INPUT_TEMPLATE JSONB,
                MSG JSONB,
+               IS_US_FEDERAL_CUSTOMER BOOLEAN NOT NULL DEFAULT false,
                PRIMARY KEY (ID)
             );
-            perform abacus.initializeTable(schemaName, tableName, 1,0,0,3);
+            perform abacus.initializeTable(schemaName, tableName, 1,0,0,4);
          when 1 then
             case version.minor
                when 0 then
@@ -43,6 +44,9 @@ do $$
                            when 2 then
                               ALTER TABLE vino.SERVICE_ACTIVATION ADD COLUMN VISIBLE BOOLEAN NOT NULL DEFAULT true;
                               perform abacus.tableVersion(schemaName, tableName, 1,0,0,3);
+                           when 3 then
+                              ALTER TABLE vino.SERVICE_ACTIVATION ADD COLUMN IS_US_FEDERAL_CUSTOMER BOOLEAN NOT NULL DEFAULT false;
+                              perform abacus.tableVersion(schemaName, tableName, 1,0,0,4);
                            else
                               raise info '%.% table at version [%.%.%.%]', schemaName, tableName, version.major, version.minor, version.fix, version.build;
                         end case;

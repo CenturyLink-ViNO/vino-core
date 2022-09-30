@@ -44,6 +44,11 @@ export default function(keycloak): express.Router
       }
       try
       {
+         if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(serviceActivation[0], req))
+         {
+            res.status(403).send({ error: 'Unauthorized to create service for US Federal customer'});
+            return;
+         }
          const result = await repository.save(serviceActivation);
          if (!authToken.hasRealmRole('administrator') && result[0].steps)
          {
@@ -167,6 +172,11 @@ export default function(keycloak): express.Router
       {
          const repository = getRepository(ServiceActivation);
          const activation = await getRepository(ServiceActivation).findOne(jobId, { relations: ['status'] });
+         if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+         {
+            res.status(403).send({ error: 'Unauthorized to modify this service activation'});
+            return;
+         }
          try
          {
             const result = await repository.update(jobId, { visible: visible });

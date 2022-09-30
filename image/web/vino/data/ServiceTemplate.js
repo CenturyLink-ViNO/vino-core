@@ -15,6 +15,7 @@ window.ServiceTemplate = function(data)
    this.notes = '';
    this.settingsRootRequired = false;
    this.customerName = '';
+   this.isUsFederalCustomer = false;
    this.steps = []; // Step[]
    this.debug = false;
 
@@ -67,6 +68,7 @@ window.ServiceTemplate = function(data)
          notes: this.notes,
          settingsRootGroup: this.settingsRoot,
          customerName: this.customerName,
+         isUsFederalCustomer: this.isUsFederalCustomer,
          steps: this.processStepList(this.steps),
          debug: this.debug
       };

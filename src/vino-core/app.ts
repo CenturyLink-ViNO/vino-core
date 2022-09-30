@@ -59,7 +59,8 @@ app.use(session({
    saveUninitialized: true,
    store: memoryStore
 }));
-
+// The user role required to view/manipulate US Federal customers
+export const usFederalCustomerRole = process.env.US_FEDERAL_CUSTOMERS_ROLE;
 let server;
 const port = process.env.VINO_PORT || 3000;
 if (process.env.VINO_HTTPS)

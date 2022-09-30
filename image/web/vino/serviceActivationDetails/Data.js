@@ -10,6 +10,7 @@ window.ServiceActivationDetailData = function(json, controller)
    this.controller = null;
    this.id = '';
    this.customerName = '';
+   this.isUsFederalCustomer = 'false';
    this.settingsRootGroup = '';
    this.visible = true;
    this.notes = '';
@@ -32,6 +33,11 @@ window.ServiceActivationDetailData = function(json, controller)
          id: 'customerName',
          type: 'info',
          label: 'Customer Name'
+      },
+      isUsFederalCustomer: {
+         id: 'isUsFederalCustomer',
+         type: 'info',
+         label: 'US Federal Customer'
       },
       settingsRootGroup: {
          id: 'settingsRootGroup',

@@ -1,9 +1,12 @@
 import * as express from 'express';
-import { getRepository } from 'typeorm';
+import { FindManyOptions, getRepository } from 'typeorm';
 import { ServiceActivation } from '../../../entities/activation/ServiceActivation';
 import { StepWrapper } from '../../../entities/activation/StepWrapper';
 import { ServiceUtility } from '../utility/serviceUtility';
 import { Step } from '../../../entities/activation/Step';
+import {usFederalCustomerRole} from '../../../app';
+
+
 
 export default function(keycloak): express.Router
 {
@@ -26,14 +29,22 @@ export default function(keycloak): express.Router
     *           items:
     *             $ref: '/swagger/serviceModels.yaml#/schemas/ServiceActivation'
     */
-   configurationStoreRouter.get('/', keycloak.protect('realm:user'), async function(req: express.Request, res: express.Response): Promise<void>
+   configurationStoreRouter.get('/', keycloak.protect('realm:user'), async function(req: express.Request & {kauth: any}, res: express.Response): Promise<void>
    {
       try
       {
-         let activations = await getRepository(ServiceActivation).find({
-            select: ['id', 'referenceId', 'name', 'description', 'visible', 'customerName', 'notes', 'startTime', 'settingsRootGroup'],
+         const queryOptions: FindManyOptions<ServiceActivation> = {
+            select: ['id', 'referenceId', 'name', 'description', 'visible', 'customerName', 'notes', 'startTime', 'settingsRootGroup', 'isUsFederalCustomer'],
             relations: ['status']
-         });
+         };
+         const token = req.kauth?.grant?.access_token;
+
+         if (!token || !token.hasRealmRole(usFederalCustomerRole))
+         {
+            queryOptions.where = [{isUsFederalCustomer: false}];
+         }
+
+         let activations = await getRepository(ServiceActivation).find(queryOptions);
          if (req.query && req.query.filterVisible === 'true')
          {
             activations = activations.filter(activation => activation.visible);
@@ -74,9 +85,14 @@ export default function(keycloak): express.Router
          if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
          {
             const activation = await getRepository(ServiceActivation).findOne(jobId, {
-               select: ['id', 'referenceId', 'name', 'description', 'visible', 'customerName', 'notes', 'startTime', 'settingsRootGroup'],
+               select: ['id', 'referenceId', 'name', 'description', 'visible', 'customerName', 'notes', 'startTime', 'settingsRootGroup', 'isUsFederalCustomer'],
                relations: ['status']
             });
+            if (!utility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to view this service activation'});
+               return;
+            }
             res.send(activation);
          }
          else
@@ -120,6 +136,14 @@ export default function(keycloak): express.Router
          const jobId = req.params.jobId;
          if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
          {
+            const activation = await getRepository(ServiceActivation).findOne(jobId, {
+               select: ['id', 'isUsFederalCustomer']
+            });
+            if (!utility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to view this service activation'});
+               return;
+            }
             let steps = await getRepository(StepWrapper).find({
                select: ['id', 'nodeId'],
                where: [{ serviceActivation: jobId }]
@@ -178,9 +202,23 @@ export default function(keycloak): express.Router
       const authToken = req.kauth.grant.access_token;
       try
       {
+         const jobId = req.params.jobId;
          let stepId = req.params.stepId;
+         if (jobId === null || jobId === undefined || jobId.trim() === '')
+         {
+            res.status(400).send({ error: 'You must specify the ID of the service activation you are querying step metadata for.' });
+            return;
+         }
          if (stepId !== null && stepId !== undefined && stepId.trim() !== '')
          {
+            const activation = await getRepository(ServiceActivation).findOne(jobId, {
+               select: ['id', 'isUsFederalCustomer']
+            });
+            if (!utility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to view this service activation'});
+               return;
+            }
             let step = await getRepository(StepWrapper).findOne(stepId, { relations: ['steps'] });
             if (!authToken.hasRealmRole('administrator'))
             {
@@ -226,9 +264,14 @@ export default function(keycloak): express.Router
          if (jobId !== null && jobId !== undefined && jobId.trim() !== '')
          {
             const activation = await getRepository(ServiceActivation).findOne(jobId, {
-               select: ['inputTemplate'],
+               select: ['inputTemplate', 'isUsFederalCustomer'],
                relations: ['status']
             });
+            if (!utility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to view this service activation'});
+               return;
+            }
             res.send(activation.inputTemplate);
          }
          else

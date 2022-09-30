@@ -34,9 +34,32 @@ export default function(keycloak): express.Router
     */
    settingsServerPrivateRouter.post('/group', keycloak.protect('realm:administrator'), async function(req, res: express.Response): Promise<void>
    {
+      async function processGroup(group: RootGroup)
+      {
+         let existing = await repository.findOne({ name: group.name }, { relations: ['defaults', 'groups'] });
+         if (existing)
+         {
+            existing = await utility.expandRootGroup(existing);
+            existing.merge(group, false);
+            return existing;
+         }
+         else
+         {
+            return group;
+         }
+      }
+      // For compatibility reasons we need to accept either a single object at the root or an array of object, so wrap root object in array.
+      let body = req.body;
+      if (typeof body === 'object' && !Array.isArray(body))
+      {
+         body = [body];
+      }
       const repository = getRepository(RootGroup);
-      const group = repository.create(req.body as RootGroup);
-      const validationErrors = await validate(group);
+      const groups = repository.create(body as Array<RootGroup>);
+
+      // Validate each group and reduce the errors to a flat array
+      const validationErrors = (await Promise.all(groups.map((group) => validate(group)))).
+         reduce((prev, current) => prev.concat(current), []);
       if (validationErrors.length > 0)
       {
          res.status(400).send({ 'error': 'Invalid group in request:\n' + validationErrors });
@@ -44,18 +67,8 @@ export default function(keycloak): express.Router
       }
       try
       {
-         let existing = await repository.findOne({ name: group.name }, { relations: ['defaults', 'groups'] });
-         let result;
-         if (existing)
-         {
-            existing = await utility.expandRootGroup(existing);
-            existing.merge(group, false);
-            result = await repository.save(existing);
-         }
-         else
-         {
-            result = await repository.save(group);
-         }
+         const groupsToSave = await Promise.all(groups.map(processGroup));
+         const result = await repository.save(groupsToSave);
          res.send(result);
       }
       catch (error)

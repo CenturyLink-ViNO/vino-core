@@ -102,6 +102,31 @@ window.ServiceActivationView = function(controller, baseId)
                      }
                   }
                },
+               isUsFederalCustomer:
+               {
+                  label: 'US Federal Customer',
+                  id: 'isUsFederalCustomer',
+                  type: 'select',
+                  isInline: true,
+                  maxItems: 1,
+                  options:
+                  [
+                     {
+                        label: 'Yes',
+                        value: 'true'
+                     },
+                     {
+                        label: 'No',
+                        value: 'false'
+                     }
+                  ],
+                  handlers: {
+                     'change': function()
+                     {
+                        outer.controller.serviceTemplate.isUsFederalCustomer = jQuery(this).val() === 'true';
+                     }
+                  }
+               },
                notes:
                {
                   label: 'Notes',

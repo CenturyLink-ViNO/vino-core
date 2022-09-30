@@ -31,7 +31,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "swagger-jsdoc": "^3.2.7",
-    "typeorm": "^0.2.12",
+    "typeorm": "0.2.26",
     "vino-node-red-nodes": "file:./vino-node-red-nodes-@VERSION@.tgz",
     "vino-core-nodes": "file:./vino-core-nodes-@VERSION@.tgz"
   },

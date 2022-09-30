@@ -37,6 +37,26 @@ do $$
       end case;
    end
 $$;
+do $$
+   declare version abacus.version_information;
+   declare schemaName text;
+   declare tableName text;
+   begin
+      tableName := 'cui_acknowledgement';
+      schemaName := 'abacus_ui';
+      version := abacus.tableVersion(schemaName, tableName);
+      case version.major
+         when -1 then
+            create table abacus_ui.cui_acknowledgement
+            (
+               user_id varchar not null primary key
+            );
+            perform abacus.initializeTable(schemaName, tableName, 1,0,0,0);
+         else
+           raise info '%.% table at version [%] present, no upgrade needed', schemaName, tableName, version.major;
+      end case;
+   end
+$$;
 
 create or replace function abacus_ui.uiStructureAddMenuItem(roleName text,
                                                             parentId text,

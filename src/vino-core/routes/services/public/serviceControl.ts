@@ -6,12 +6,14 @@ import { SettingsUtility } from '../utility/settingsUtility';
 import RED from 'node-red';
 import * as fileSystem from 'fs';
 import util from 'util';
+import { ServiceUtility } from '../utility/serviceUtility';
 const readFilePromise = util.promisify(fileSystem.readFile);
 
 export default function(keycloak): express.Router
 {
    const serviceControlRouter = express.Router();
    const utility = new SettingsUtility();
+   const serviceUtility = new ServiceUtility();
 
    /**
     * @swagger
@@ -128,6 +130,11 @@ export default function(keycloak): express.Router
       try
       {
          const service: ServiceRegistration = await getRepository(ServiceRegistration).findOne(serviceId);
+         if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(req.body, req))
+         {
+            res.status(403).send({ error: 'Unauthorized to activate service for US Federal customer' });
+            return;
+         }
          if (service)
          {
             const node = RED.nodes.getNode(service.entryNodeId);
@@ -185,9 +192,10 @@ export default function(keycloak): express.Router
          {
             const node = RED.nodes.getNode(service.entryNodeId);
             let status = node.getActivationStatus(jobId);
+            let activation = node.getActivationData(jobId)
             if (!status)
             {
-               const activation = await getRepository(ServiceActivation).findOne(jobId);
+               activation = await getRepository(ServiceActivation).findOne(jobId);
                if (activation)
                {
                   status = activation.status;
@@ -196,6 +204,11 @@ export default function(keycloak): express.Router
                {
                   res.status(404).send({ error: `No activation with ID '${jobId}' could be found` });
                }
+            }
+            if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to view this service activation\'s status'});
+               return;
             }
             res.send(status);
          }
@@ -249,6 +262,12 @@ export default function(keycloak): express.Router
          if (service)
          {
             const node = RED.nodes.getNode(service.entryNodeId);
+            let activation = node.getActivationData(jobId)
+            if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+            {
+               res.status(403).send({ error: 'Unauthorized to cancel this service activation'});
+               return;
+            }
             const status = node.cancelActivation(jobId);
             res.send(status);
          }
@@ -291,6 +310,14 @@ export default function(keycloak): express.Router
       }
       try
       {
+         const activation = await getRepository(ServiceActivation).findOne(jobId, {
+            select: ['id', 'isUsFederalCustomer']
+         });
+         if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+         {
+            res.status(403).send({ error: 'Unauthorized to view this service activation\'s log' });
+            return;
+         }
          const logContent = await readFilePromise('/var/log/vino/activations/' + jobId + '.log');
          res.send(logContent);
       }
@@ -334,7 +361,15 @@ export default function(keycloak): express.Router
          res.status(400).send({ error: 'No Service ID or Job ID was provided' });
       }
       try
-      {
+      {  
+         const activation = await getRepository(ServiceActivation).findOne(jobId, {
+            select: ['id', 'isUsFederalCustomer']
+         });
+         if (!serviceUtility.checkUserAuthorizedForUsFederalCustomer(activation, req))
+         {
+            res.status(403).send({ error: 'Unauthorized to deactivate this service' });
+            return;
+         }
          const service: ServiceRegistration = await getRepository(ServiceRegistration).findOne(serviceId);
          if (service)
          {

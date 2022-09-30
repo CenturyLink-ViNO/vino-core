@@ -1,6 +1,8 @@
 import { StepWrapper } from '../../../entities/activation/StepWrapper';
 import { Step } from '../../../entities/activation/Step';
 import { Parameter, ParameterType } from '../../../entities/common/Parameter';
+import { ServiceActivation } from '../../../entities/activation/ServiceActivation';
+import { usFederalCustomerRole } from '../../../app';
 
 export class ServiceUtility
 {
@@ -34,5 +36,23 @@ export class ServiceUtility
          }
       }
       return stepWrapper;
+   }
+   public checkUserAuthorizedForUsFederalCustomer(activation: ServiceActivation, req: any): boolean
+   {
+      let token = req.kauth?.grant?.access_token;
+      if (activation.isUsFederalCustomer)
+      {
+         let authorized = true;
+         if (!token)
+         {
+            authorized = false;
+         }
+         else
+         {
+            authorized = token.hasRealmRole(usFederalCustomerRole);
+         }
+         return authorized;
+      }
+      return true
    }
 }
