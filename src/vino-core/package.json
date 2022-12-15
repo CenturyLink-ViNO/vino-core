@@ -20,7 +20,7 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.3",
     "entities": "^1.1.2",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "formidable": "^1.2.1",
     "http": "0.0.0",
     "keycloak-connect": "^4.8.3",
